@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pomodoro Study Timer</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <h1>🍅 Pomodoro Study Timer</h1>
+            <p class="tagline">Focus. Learn. Achieve.</p>
+        </header>
+
+        <!-- Session Setup Modal -->
+        <div id="sessionModal" class="modal">
+            <div class="modal-content">
+                <h2>Start New Study Session</h2>
+                <input 
+                    type="text" 
+                    id="sessionNameInput" 
+                    placeholder="Enter study topic (e.g., Physics - Kinematics)"
+                    maxlength="200"
+                >
+                <div class="modal-buttons">
+                    <button id="startSessionBtn" class="btn btn-primary">Start Session</button>
+                    <button id="cancelSessionBtn" class="btn btn-secondary">Cancel</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Timer Section -->
+        <section class="timer-section">
+            <div class="session-info">
+                <h2 id="currentSessionName">No Active Session</h2>
+                <p id="sessionStatus" class="status-text">Click "New Session" to begin</p>
+            </div>
+
+            <!-- Timer Display -->
+            <div class="timer-display">
+                <div id="timerCircle" class="timer-circle">
+                    <span id="timeDisplay">25:00</span>
+                    <p id="timerLabel">Ready</p>
+                </div>
+            </div>
+
+            <!-- Pomodoro Progress -->
+            <div class="pomodoro-progress">
+                <div class="pomodoro-counter">
+                    <span id="pomodoroCount">0</span> / 4 Pomodoros
+                </div>
+                <div class="pomodoro-dots">
+                    <span class="dot" id="dot1"></span>
+                    <span class="dot" id="dot2"></span>
+                    <span class="dot" id="dot3"></span>
+                    <span class="dot" id="dot4"></span>
+                </div>
+            </div>
+
+            <!-- Timer Controls -->
+            <div class="timer-controls">
+                <button id="newSessionBtn" class="btn btn-primary">New Session</button>
+                <button id="startBtn" class="btn btn-success" disabled>Start</button>
+                <button id="skipBtn" class="btn btn-secondary" disabled>Skip Break</button>
+                <button id="endSessionBtn" class="btn btn-danger" disabled>End Session</button>
+            </div>
+        </section>
+
+        <!-- Notes Section -->
+        <section class="notes-section">
+            <div class="notes-header">
+                <h3>📝 Session Notes</h3>
+                <span id="saveIndicator" class="save-indicator">Auto-saving...</span>
+            </div>
+            <textarea 
+                id="notesArea" 
+                placeholder="Take notes during your study session... (notes are auto-saved)"
+                disabled
+            ></textarea>
+            <div class="notes-footer">
+                <button id="aiAssistBtn" class="btn btn-ai" disabled>
+                    🤖 Ask AI Assistant
+                </button>
+                <span id="characterCount">0 characters</span>
+            </div>
+        </section>
+
+        <!-- AI Assistant Panel -->
+        <div id="aiPanel" class="ai-panel hidden">
+            <div class="ai-panel-header">
+                <h3>🤖 AI Study Assistant</h3>
+                <button id="closeAiBtn" class="close-btn">&times;</button>
+            </div>
+            <div class="ai-panel-content">
+                <div id="aiInput">
+                    <textarea 
+                        id="aiQueryText" 
+                        placeholder="Enter a topic or select text from your notes to get AI assistance..."
+                        rows="3"
+                    ></textarea>
+                    <button id="submitAiQuery" class="btn btn-primary">Get Explanation</button>
+                </div>
+                <div id="aiResponse" class="ai-response hidden">
+                    <h4>AI Response:</h4>
+                    <div id="aiResponseText"></div>
+                    <button id="insertAiResponse" class="btn btn-secondary">Insert into Notes</button>
+                </div>
+                <div id="aiLoading" class="ai-loading hidden">
+                    <div class="spinner"></div>
+                    <p>AI is thinking...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <nav class="tabs">
+            <button class="tab active" data-tab="timer">Timer</button>
+            <button class="tab" data-tab="history">Past Sessions</button>
+        </nav>
+
+        <!-- Past Sessions Section -->
+        <section id="historySection" class="history-section hidden">
+            <h2>📚 Past Study Sessions</h2>
+            <div id="sessionsList" class="sessions-list">
+                <p class="no-sessions">No study sessions yet. Start your first session!</p>
+            </div>
+        </section>
+
+        <!-- Session Detail Modal -->
+        <div id="sessionDetailModal" class="modal hidden">
+            <div class="modal-content large">
+                <div class="modal-header">
+                    <h2 id="detailSessionName"></h2>
+                    <button class="close-btn" id="closeDetailBtn">&times;</button>
+                </div>
+                <div class="session-detail-content">
+                    <div class="detail-stats">
+                        <div class="stat">
+                            <span class="stat-label">Duration:</span>
+                            <span id="detailDuration" class="stat-value"></span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-label">Pomodoros:</span>
+                            <span id="detailPomodoros" class="stat-value"></span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-label">Date:</span>
+                            <span id="detailDate" class="stat-value"></span>
+                        </div>
+                    </div>
+                    <div class="detail-notes">
+                        <h3>Session Notes:</h3>
+                        <div id="detailNotes" class="notes-display"></div>
+                    </div>
+                    <div class="detail-actions">
+                        <button id="deleteSessionBtn" class="btn btn-danger">Delete Session</button>
+                        <button id="exportNotesBtn" class="btn btn-secondary">Export Notes</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Audio for timer completion -->
+    <audio id="timerSound" preload="auto">
+        <source src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- Scripts -->
+    <script src="js/timer.js"></script>
+    <script src="js/notes.js"></script>
+    <script src="js/sessions.js"></script>
+</body>
+</html>
